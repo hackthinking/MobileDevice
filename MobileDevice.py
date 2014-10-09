@@ -31,7 +31,11 @@ from CoreFoundation import *
 if platform.system() == u'Darwin':
 	MobileDevice = CDLL(u'/System/Library/PrivateFrameworks/MobileDevice.framework/MobileDevice')
 elif platform.system() == u'Windows':
-	raise NotImplementedError(u'need to find and import the MobileDevice dll')
+	#MobileDevice = CDLL(u'iTunesMobileDevice.dll')
+	MobileDevice = CDLL(u'MobileDevice.dll')
+elif platform.system() == u'CYGWIN_NT-5.1' or platform.system() == u'CYGWIN_NT-6.3-WOW64':
+	#MobileDevice = CDLL(u'iTunesMobileDevice.dll')
+	MobileDevice = CDLL(u'MobileDevice.dll')
 else:
 	raise OSError(u'Platform not supported')
 
@@ -215,6 +219,9 @@ AMDeviceConnect.argtypes = [AMDeviceRef]
 # XXX _AMDeviceCopyAuthInstallPreflightOptions
 
 # AMDeviceCopyDeviceIdentifier - returns same value as AMDeviceGetName
+AMDeviceCopyDeviceIdentifier = MobileDevice.AMDeviceCopyDeviceIdentifier
+AMDeviceCopyDeviceIdentifier.restype = c_long
+AMDeviceCopyDeviceIdentifier.argtypes = [AMDeviceRef]
 
 AMDeviceCopyDeviceLocation = MobileDevice.AMDeviceCopyDeviceLocation
 AMDeviceCopyDeviceLocation.restype = c_long
@@ -259,9 +266,10 @@ AMDeviceGetInterfaceType.argtypes = [AMDeviceRef]
 
 # AMDeviceGetLocalOrRemoteOffsetToResume - dont think we need
 
-AMDeviceGetName = MobileDevice.AMDeviceGetName
-AMDeviceGetName.restype = CFStringRef
-AMDeviceGetName.argtypes = [AMDeviceRef]
+if platform.system() == u'Darwin':
+	AMDeviceGetName = MobileDevice.AMDeviceGetName
+	AMDeviceGetName.restype = CFStringRef
+	AMDeviceGetName.argtypes = [AMDeviceRef]
 
 # AMDeviceGetTypeID - dont need; returns the CFTypeID for AMDeviceRef
 
@@ -293,16 +301,24 @@ AMDeviceIsPaired.argtypes = [AMDeviceRef]
 
 # AMDeviceLookupApplicationArchives - legacy version of AMDeviceLookupApplications
 # AMDeviceLookupApplications - sends Browse to installation_proxy; we do directly
-
-AMDeviceMountImage = MobileDevice.AMDeviceMountImage
-AMDeviceMountImage.restype = mach_error_t
-AMDeviceMountImage.argtypes = [
+AMDeviceLookupApplications = MobileDevice.AMDeviceLookupApplications
+AMDeviceLookupApplications.restype = mach_error_t
+AMDeviceLookupApplications.argtypes = [
 	AMDeviceRef, 
-	CFStringRef, 
 	CFDictionaryRef, 
-	AMDeviceProgressCallback, 
-	c_void_p
+	POINTER(CFDictionaryRef)
 ]
+
+if platform.system() == u'Darwin':
+	AMDeviceMountImage = MobileDevice.AMDeviceMountImage
+	AMDeviceMountImage.restype = mach_error_t
+	AMDeviceMountImage.argtypes = [
+		AMDeviceRef, 
+		CFStringRef, 
+		CFDictionaryRef, 
+		AMDeviceProgressCallback, 
+		c_void_p
+	]
 
 AMDeviceNotificationSubscribe = MobileDevice.AMDeviceNotificationSubscribe
 AMDeviceNotificationSubscribe.restype = mach_error_t
@@ -328,9 +344,13 @@ AMDevicePair.argtypes = [AMDeviceNotificationRef]
 # AMDevicePreflightOperationGetTypeID - no idea
 # AMDevicePreflightOperationInvalidate - no idea
 
-AMDeviceRelease = MobileDevice.AMDeviceRelease
-AMDeviceRelease.restype = None
-AMDeviceRelease.argtypes = [AMDeviceRef]
+if platform.system() == u'Darwin':
+	AMDeviceRelease = MobileDevice.AMDeviceRelease
+	AMDeviceRelease.restype = None
+	AMDeviceRelease.argtypes = [AMDeviceRef]
+else:
+	def AMDeviceRelease(AMDeviceRef):
+		pass
 
 # AMDeviceRemoveApplicationArchive - I'm guessing its the legacy version of AMDeviceSecureUninstallApplication
 
@@ -406,6 +426,16 @@ AMDeviceUSBProductID.restype = c_long
 AMDeviceUSBProductID.argtypes = [AMDeviceRef]
 
 # XXX AMDeviceUninstallApplication
+AMDeviceUninstallApplication = MobileDevice.AMDeviceUninstallApplication
+AMDeviceUninstallApplication.restype = mach_error_t
+AMDeviceUninstallApplication.argtypes = [
+	c_uint32, 
+	CFStringRef, 
+	CFDictionaryRef, 
+	AMDeviceProgressCallback, 
+	c_void_p
+]
+
 # XXX AMDeviceUninstallPackage
 
 AMDeviceUnpair = MobileDevice.AMDeviceUnpair
@@ -443,6 +473,13 @@ AMDeviceValidatePairing.argtypes = [AMDeviceRef]
 #	POINTER(c_int32)
 #]
 
+AMDServiceConnectionSend = MobileDevice.AMDServiceConnectionSend
+AMDServiceConnectionSend.restype = mach_error_t
+AMDServiceConnectionSend.argtypes = [
+	c_uint32,
+	c_char_p,
+	c_uint32
+]
 
 #AMD* methods
 AMDSetLogLevel = MobileDevice.AMDSetLogLevel

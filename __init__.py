@@ -44,4 +44,5 @@ from assertionagent import *
 from pcap import *
 from notificationproxy import *
 from crashmover import *
+from AirTrafficHost import *
 

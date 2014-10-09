@@ -33,14 +33,49 @@ class FileRelay(PlistService):
 	filesets from the device in cpio.gz format'''
 
 	filesets = [
-		u'AppleSupport',
-		u'Network',
-		u'VPN',
-		u'WiFi',
-		u'UserDatabases',
-		u'CrashReporter',
-		u'tmp',
-		u'SystemConfiguration'
+		u'Accounts',
+		u'AddressBook',
+		# u'AppleSupport',
+		# u'AppleTV',
+		# u'Baseband'
+		# u'Bluetooth',
+		# u'CrashReporter',
+		# u'CLTM',
+		# u'Caches',
+		# u'CoreLocation',
+		# u'DataAccess',
+		# u'DataMigrator',
+		# u'demod',
+		# u'Device-o-Matic',
+		# u'EmbeddedSocial',
+		# u'FindMyiPhone',
+		# u'GameKitLogs',
+		# u'itunesstored',
+		# u'IORegUSBDevice',
+		# u'HFSMeta',
+		# u'Keyboard',
+		# u'Lockdown',
+		# u'MapsLogs',
+		# u'MobileAsset',
+		# u'MobileBackup',
+		# u'MobileCal',
+		# u'MobileDelete',
+		# u'MobileInstallation',
+		# u'MobileMusicPlayer',
+		# u'MobileNotes',
+		# u'NANDDebugInfo',
+		# u'Network',
+		# u'Photos',
+		# u'SafeHarbor',
+		# u'SystemConfiguration'
+		# u'tmp',
+		# u'Ubiquity',
+		# u'UserDatabases',
+		# u'VARFS',
+		# u'VPN',
+		# u'Voicemail',
+		# u'WiFi',
+		# u'WirelessAutomation'
 	]
 
 	def __init__(self, amdevice):

@@ -25,12 +25,18 @@
 from ctypes import *
 import platform
 import datetime
-
+import os
 
 if platform.system() == u'Darwin':
 	CoreFoundation = CDLL(u'/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation')
 elif platform.system() == u'Windows':
-	raise NotImplementedError(u'need to find and import the CoreFoundation dll')
+	os.environ['PATH'] += r';C:\Program Files (x86)\Common Files\Apple\Apple Application Support;'
+	os.environ['PATH'] += r';C:\Program Files (x86)\Common Files\Apple\Mobile Device Support;'
+	CoreFoundation = CDLL(r'CoreFoundation.dll')
+elif platform.system() == u'CYGWIN_NT-5.1' or platform.system() == u'CYGWIN_NT-6.3-WOW64':
+	os.environ['PATH'] += r':/cygdrive/C/Program Files (x86)/Common Files/Apple/Apple Application Support:'
+	os.environ['PATH'] += r':/cygdrive/C/Program Files (x86)/Common Files/Apple/Mobile Device Support:'
+	CoreFoundation = CDLL(r'CoreFoundation.dll')
 else:
 	raise OSError(u'Platform not supported')
 
@@ -193,6 +199,7 @@ CFDataGetLength.argtypes = [CFDataRef]
 
 # CFDictionary
 CFDictionaryRef = c_void_p
+CFMutableDictionaryRef = c_void_p
 
 CFDictionaryGetTypeID = CoreFoundation.CFDictionaryGetTypeID
 CFDictionaryGetTypeID.restype = CFTypeID
@@ -283,6 +290,7 @@ CFPropertyListCreateWithData.argtypes = [
 
 # CFArray
 CFArrayRef = c_void_p
+CFMutableArrayRef = c_void_p
 
 CFArrayGetTypeID = CoreFoundation.CFArrayGetTypeID
 CFArrayGetTypeID.restype = CFTypeID

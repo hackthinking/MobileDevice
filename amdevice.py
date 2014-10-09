@@ -108,7 +108,7 @@ class AMDevice(object):
 		'''
 		# AMDeviceGetName and AMDeviceCopyDeviceIdentifier return the same value
 		# AMDeviceRef + 20
-		cf = AMDeviceGetName(self.dev)
+		cf = AMDeviceCopyDeviceIdentifier(self.dev)
 		if cf is None:
 			raise RuntimeError(u'Unable to get device id')
 		return CFTypeTo(cf)
@@ -540,7 +540,7 @@ def handle_devices(factory):
 	AMDeviceNotificationUnsubscribe(notify)
 
 
-def list_devices(waittime=0.1):
+def list_devices(waittime=1.5):
 	u'''Returns a dictionary of AMDevice objects, indexed by device id, 
 	currently connected; waiting at least waittime for them to be discovered.
 

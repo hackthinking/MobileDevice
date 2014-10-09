@@ -24,6 +24,7 @@
 
 from amdevice import *
 from afc import *
+import pprint
 
 
 class AFCMediaDirectory(AFC):
@@ -49,12 +50,13 @@ class AFCMediaDirectory(AFC):
 		# sense to use it on the MediaDirectory - as it hard coded moves stuff 
 		# to /PublicStaging.
 		def callback(cfdict, arg):
-			pass
+			info = CFTypeTo(cfdict)
+			pprint.pprint(info)
 
 		cfpath = CFTypeFrom(path)
-		cb = AFCProgressCallback(callback)
+		cb = AMDeviceProgressCallback(callback)
 		if progress is not None:
-			cb = AFCProgressCallback(progress)
+			cb = AMDeviceProgressCallback(progress)
 		err = AMDeviceTransferApplication(self.s, cfpath, None, cb, None)
 		CFRelease(cfpath)
 		if err != MDERR_OK:
@@ -128,7 +130,7 @@ def register_argparse_afc(cmdargs):
 
 	def get_afc(args, dev):
 		retval = None
-		if args.path.startswith(u'/var/mobile/Media'):
+		if args.path.decode(u'utf-8').startswith(u'/var/mobile/Media'):
 			retval = afcmediadirectory.AFCMediaDirectory(dev)
 			args.path = args.path[len(u'/var/mobile/Media'):]
 		elif args.m:

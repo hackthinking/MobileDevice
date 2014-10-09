@@ -23,6 +23,7 @@
 
 
 from MobileDevice import *
+import socket
 import os
 import struct
 
@@ -47,15 +48,45 @@ class PlistService(object):
 
 		if self.s is None:
 			raise RuntimeError(u'Unable to launch one of:', servicenames)
+		print(u'StartService:', servicenames)
+			
+	#convert string to hex
+	def toHex(self, s):
+		lst = []
+		for ch in s:
+			hv = hex(ord(ch)).replace('0x', '')
+			if len(hv) == 1:
+				hv = '0'+hv
+			lst.append(hv)
 
-	def disconnect(self):
-		os.close(self.s)
+		return reduce(lambda x,y:x+y, lst)
+	
+	if platform.system() == u'Darwin':
+		def disconnect(self):
+			os.close(self.s)
+	else:
+		def disconnect(self):
+			pass
 
 	def _sendmsg(self, msg):
 		endian = u'>I'
 		if self.bigendian:
 			endian = u'<I'
 		data = dict_to_plist_encoding(msg, self.format)
+		
+		# buffer = struct.pack(endian.encode(u'utf-8'), len(data))
+		# buflen = len(buffer)
+		# print self.toHex(buffer)
+		# #buffer = c_char_p(buffer)
+		# print buflen
+		# #print buffer
+		# AMDServiceConnectionSend(self.s, buffer, buflen)
+		
+		# buffer = data
+		# buflen = len(buffer)
+		# buffer = c_char_p(buffer)
+		# AMDServiceConnectionSend(self.s, buffer, buflen)
+		
 		os.write(self.s, struct.pack(endian.encode(u'utf-8'), len(data)))
 		os.write(self.s, data)
 
