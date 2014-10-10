@@ -102,6 +102,20 @@ class AFCFile(object):
 			AFCFileRefClose(self.afc_con, self.f)
 			self.closed = True
 
+	# typically you get a class with the following members
+	# st_mtime, st_blocks, st_nlink, st_birthtime, st_ifmt, st_size
+	def lstat(self, path):
+		info = AFCDictionaryRef()
+		if AFCFileInfoOpen(
+				self.afc_con, 
+				path.encode(u'utf-8'), 
+				byref(info)
+			) != MDERR_OK:
+			raise OSError(u'Unable to open path:', path)
+		retval = _stat_from_afcdict(info)
+		AFCKeyValueClose(info)
+		return retval
+
 	def flush(self):
 		pass
 

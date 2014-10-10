@@ -25,6 +25,7 @@
 from amdevice import *
 from plistservice import *
 from afc import *
+import afcmediadirectory
 import pprint
 
 
@@ -108,6 +109,41 @@ class InstallationProxy(PlistService):
 		cfappid = CFTypeFrom(appid)
 		cb = AMDeviceProgressCallback(callback)
 		AMDeviceUninstallApplication(self.s, cfappid, options, cb, None)
+		
+	def archive_application(self, appid, options=None):
+		u'''Archive the application'''
+		def callback(cfdict, arg):
+			info = CFTypeTo(cfdict)
+			pprint.pprint(info)
+
+		cfappid = CFTypeFrom(appid)
+		cb = AMDeviceProgressCallback(callback)
+		if options is not None:
+			cfoptions = CFTypeFrom(options)
+		else:
+			cfoptions = CFTypeFrom({
+				u'SkipUninstall': True,
+				u'ArchiveType': u'ApplicationOnly' # "DocumentsOnly", "ApplicationOnly", "All"
+			})
+		AMDeviceArchiveApplication(self.s, cfappid, cfoptions, cb, None)
+
+		src = u'/ApplicationArchives/' + appid + u'.zip'
+		dst = appid + u'.zip'
+		afc = afcmediadirectory.AFCMediaDirectory(self.dev)
+		s = afc.open(src, u'r')
+		d = open(dst, u'w+')
+
+		#info = s.lstat(src)
+		#size = int(info.st_size)
+		#while (size > 0):
+		#	d.write(s.read(1024*32))
+		#	size -= 1024 * 32
+		d.write(s.readall())
+		d.close()
+		s.close()
+		afc.disconnect()
+
+		AMDeviceRemoveApplicationArchive(self.s, cfappid, None, cb, None)
 
 	# TODO: archive, restore, etc
 
@@ -157,6 +193,12 @@ def register_argparse_install(cmdargs):
 		pprint.pprint(pxy.uninstall_application(appid))
 		pxy.disconnect()
 
+	def cmd_archive(args, dev):
+		appid = args.appid.decode(u'utf-8')
+		pxy = InstallationProxy(dev)
+		pprint.pprint(pxy.archive_application(appid))
+		pxy.disconnect()
+
 	installparser = cmdargs.add_parser(
 		u'install', 
 		help=u'installation proxy commands'
@@ -198,4 +240,15 @@ def register_argparse_install(cmdargs):
 		help=u'the application id'
 	)
 	uninstallcmd.set_defaults(func=cmd_uninstall)
+
+	# archive command
+	archivecmd = installcmd.add_parser(
+		u'archive',
+		help=u'archive the application'
+	)
+	archivecmd.add_argument(
+		u'appid',
+		help=u'the application id'
+	)
+	archivecmd.set_defaults(func=cmd_archive)
 

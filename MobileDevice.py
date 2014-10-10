@@ -208,6 +208,16 @@ AMDeviceActivate.restype = mach_error_t
 AMDeviceActivate.argtypes = [AMDeviceRef, CFTypeRef]
 
 # XXX _AMDeviceArchiveApplication
+AMDeviceArchiveApplication = MobileDevice.AMDeviceArchiveApplication
+AMDeviceArchiveApplication.restype = mach_error_t
+AMDeviceArchiveApplication.argtypes = [
+	c_uint32, 
+	CFStringRef, 
+	CFDictionaryRef, 
+	AMDeviceProgressCallback, 
+	c_void_p
+]
+
 # XXX _AMDeviceCheckCapabilitiesMatch
 
 AMDeviceConnect = MobileDevice.AMDeviceConnect
@@ -353,6 +363,15 @@ else:
 		pass
 
 # AMDeviceRemoveApplicationArchive - I'm guessing its the legacy version of AMDeviceSecureUninstallApplication
+AMDeviceRemoveApplicationArchive = MobileDevice.AMDeviceRemoveApplicationArchive
+AMDeviceRemoveApplicationArchive.restype = mach_error_t
+AMDeviceRemoveApplicationArchive.argtypes = [
+	c_uint32, 
+	CFStringRef, 
+	CFDictionaryRef, 
+	AMDeviceProgressCallback, 
+	c_void_p
+]
 
 # XXX AMDeviceRemoveProvisioningProfile
 
